@@ -1,22 +1,38 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { featuredContent } from '../lib/featured';
 
-const blogPosts = (await getCollection('blog'))
+const allBlogPosts = (await getCollection('blog'))
   .filter((post) => !post.data.draft)
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const byPath = (post) => `src/content/blog/${post.id}.md`;
+const configuredPosts = (paths: string[]) => paths
+  .map((filePath) => allBlogPosts.find((post) => byPath(post) === filePath))
+  .filter(Boolean);
+
+const featuredPosts = configuredPosts(featuredContent.featuredPosts);
+const carouselPosts = configuredPosts(featuredContent.carouselPosts);
+const blogPosts = (featuredPosts.length ? featuredPosts : allBlogPosts.filter((post) => post.data.featured)).concat(allBlogPosts)
+  .filter((post, index, array) => array.findIndex((item) => item.id === post.id) === index)
   .slice(0, 3);
 
-const progressEntries = (await getCollection('progress'))
+const carouselItems = (carouselPosts.length ? carouselPosts : allBlogPosts.filter((post) => post.data.carousel)).concat(blogPosts)
+  .filter((post, index, array) => array.findIndex((item) => item.id === post.id) === index)
+  .slice(0, 4);
+const heroPost = carouselItems[0] || blogPosts[0];
+
+const activityEntries = (await getCollection('activity'))
   .filter((entry) => !entry.data.draft)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0, 4);
+  .slice(0, 3);
 
 const projects = [
   {
     name: '个人博客工作台',
     status: 'active',
-    summary: '这个站点本身：用于整理博客、进度记录和仓库入口。',
+    summary: '这个站点本身：用于整理博客、项目动态和仓库入口。',
     href: 'https://github.com/r05En1cU/r05En1cU.github.io'
   },
   {
@@ -27,47 +43,67 @@ const projects = [
   }
 ];
 
+const focusItems = [
+  '把短记录沉淀成可回看的技术笔记',
+  '维护项目状态、仓库入口和阶段性成果',
+  '让个人站点成为轻量内容工作台'
+];
+
+const primaryActions = [
+  { href: '/blog/', label: '读博客' },
+  { href: '/projects/', label: '看项目' }
+];
+
 const formatDate = (date: Date) =>
   new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
 ---
-<BaseLayout title="RosenIcu | 个人博客与进度记录">
+<BaseLayout title="RosenIcu | 博客与项目入口">
   <section class="hero">
     <div>
-      <p class="eyebrow">Personal blog / lab notes / project links</p>
-      <h1>把每天推进过的事情，慢慢整理成能回看的路径。</h1>
+      <p class="eyebrow">Personal blog / project index</p>
+      <h1>把正在做的项目和写下的笔记，整理成清晰入口。</h1>
       <p class="lede">
-        这里会放技术笔记、阶段进度、项目链接和一些正在成形的想法。短记录优先，等线索足够清楚时再沉淀成长文。
+        这里保留三个公开入口：首页负责总览，博客负责沉淀，项目负责链接仓库和动态。内容不追求铺满，先让重要信息更快被看见。
       </p>
+      <div class="project-links">
+        {primaryActions.map((action) => <a class="button-link" href={action.href}>{action.label}</a>)}
+      </div>
     </div>
     <aside class="callout" aria-label="当前状态">
-      <p class="eyebrow">现在</p>
-      <h2>搭建个人博客的基本功能</h2>
-      <p class="lede">先让首页、文章、进度和项目入口稳定运转，再逐步扩展样式与内容。</p>
+      <p class="eyebrow">Featured</p>
+      {heroPost ? <h2>{heroPost.data.title}</h2> : <h2>本地写作工作台</h2>}
+      <p class="lede">{heroPost ? heroPost.data.description : '内容在本地编辑、实时预览，发布到 GitHub Pages 时只保留静态展示。'}</p>
+      {heroPost && <a class="button-link secondary" href={`/blog/${heroPost.id}/`}>阅读重点文章</a>}
     </aside>
   </section>
 
-  <section class="section" aria-labelledby="latest-progress">
-    <div class="section-heading">
-      <h2 id="latest-progress">最新进度</h2>
-      <a href="/progress/">查看全部</a>
+  <section class="section grid two" aria-label="站点定位">
+    <div class="card">
+      <p class="eyebrow">Focus</p>
+      <h2>这个站点现在解决三件事。</h2>
+      <div class="article-list compact-list">
+        {focusItems.map((item) => (
+          <div class="article-link static-row">
+            <span class="status active">focus</span>
+            <span><h3>{item}</h3></span>
+          </div>
+        ))}
+      </div>
     </div>
-    <div class="article-list">
-      {progressEntries.map((entry) => (
-        <a class="article-link" href={`/progress/${entry.id}/`}>
-          <time datetime={entry.data.date.toISOString()}>{formatDate(entry.data.date)}</time>
-          <span>
-            <span class={`status ${entry.data.status}`}>{entry.data.status}</span>
-            <h3>{entry.data.title}</h3>
-            {entry.data.project && <p>{entry.data.project}</p>}
-          </span>
-        </a>
-      ))}
+    <div class="card">
+      <p class="eyebrow">Route</p>
+      <h2>公开页面只保留三类入口。</h2>
+      <div class="project-links vertical-actions">
+        <a class="button-link secondary" href="/">首页：身份、近况、最新内容</a>
+        <a class="button-link secondary" href="/blog/">博客：完整文章和阶段总结</a>
+        <a class="button-link secondary" href="/projects/">项目：仓库链接和项目动态</a>
+      </div>
     </div>
   </section>
 
   <section class="section" aria-labelledby="latest-blog">
     <div class="section-heading">
-      <h2 id="latest-blog">最新文章</h2>
+      <h2 id="latest-blog">重点文章</h2>
       <a href="/blog/">进入博客</a>
     </div>
     <div class="grid three">
@@ -82,6 +118,45 @@ const formatDate = (date: Date) =>
             {post.data.tags.map((tag) => <span class="tag">{tag}</span>)}
           </div>
         </article>
+      ))}
+    </div>
+  </section>
+
+  {carouselItems.length > 1 && (
+    <section class="section" aria-labelledby="carousel-blog">
+      <div class="section-heading">
+        <h2 id="carousel-blog">轮播展示</h2>
+        <span>横向浏览</span>
+      </div>
+      <div class="carousel-strip" tabindex="0" aria-label="轮播文章列表">
+        {carouselItems.map((post) => (
+          <article class="card compact carousel-card">
+            <div class="meta">
+              <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+            </div>
+            <h3><a href={`/blog/${post.id}/`}>{post.data.title}</a></h3>
+            <p>{post.data.description}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section class="section" aria-labelledby="project-activity">
+    <div class="section-heading">
+      <h2 id="project-activity">项目动态</h2>
+      <a href="/projects/">进入项目</a>
+    </div>
+    <div class="article-list">
+      {activityEntries.map((entry) => (
+        <div class="article-link static-row">
+          <time datetime={entry.data.date.toISOString()}>{formatDate(entry.data.date)}</time>
+          <span>
+            <span class={`status ${entry.data.status}`}>{entry.data.status}</span>
+            <h3>{entry.data.title}</h3>
+            {entry.data.project && <p>{entry.data.project}</p>}
+          </span>
+        </div>
       ))}
     </div>
   </section>

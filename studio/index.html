@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RosenIcu Studio</title>
+    <link rel="stylesheet" href="/vendor/katex.min.css" />
+    <link rel="stylesheet" href="/studio/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p>RosenIcu Studio</p>
+        <h1>本地内容工作台</h1>
+      </div>
+      <div class="top-actions">
+        <button data-action="reload">重新载入</button>
+        <a href="http://127.0.0.1:4321/" target="_blank" rel="noreferrer">打开站点预览</a>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="panel sidebar">
+        <div class="panel-head">
+          <h2>内容库</h2>
+          <span data-count>0</span>
+        </div>
+        <div class="stack" data-content-list></div>
+      </aside>
+
+      <section class="panel editor">
+        <div class="panel-head">
+          <h2>编辑</h2>
+          <span data-path>新内容</span>
+        </div>
+        <div class="form-grid">
+          <label>
+            类型
+            <select name="type">
+              <option value="blog">博客文章</option>
+              <option value="activity">项目动态</option>
+            </select>
+          </label>
+          <label>
+            标题
+            <input name="title" placeholder="文章或动态标题" />
+          </label>
+          <label data-blog-field>
+            描述
+            <input name="description" placeholder="博客列表中的摘要" />
+          </label>
+          <label data-activity-field hidden>
+            项目
+            <input name="project" placeholder="例如：个人博客工作台" />
+          </label>
+          <label data-activity-field hidden>
+            状态
+            <select name="status">
+              <option value="idea">idea</option>
+              <option value="active" selected>active</option>
+              <option value="paused">paused</option>
+              <option value="done">done</option>
+            </select>
+          </label>
+          <label>
+            标签
+            <input name="tags" placeholder="用英文逗号分隔" />
+          </label>
+        </div>
+
+        <div class="toolbar" aria-label="编辑工具">
+          <button data-insert="**加粗**">B</button>
+          <button data-insert="_斜体_">I</button>
+          <button data-insert="## 小标题">H2</button>
+          <button data-insert="- 列表项">List</button>
+          <button data-insert="$$\nE = mc^2\n$$">LaTeX</button>
+          <button data-action="image">图片</button>
+        </div>
+
+        <textarea name="body" spellcheck="false" placeholder="支持完整 Markdown；公式可写 $x^2$ 或 $$...$$。"></textarea>
+
+        <details class="panel inset">
+          <summary>插入图片</summary>
+          <div class="form-grid image-grid">
+            <label>
+              本地图片路径
+              <input name="imageSource" placeholder="例如：/home/rosen/Pictures/demo.png" />
+            </label>
+            <label>
+              宽度
+              <input name="imageWidth" placeholder="例如：640px 或 80%" />
+            </label>
+            <label>
+              高度
+              <input name="imageHeight" placeholder="可留空" />
+            </label>
+            <label>
+              说明
+              <input name="imageAlt" placeholder="图片说明" />
+            </label>
+          </div>
+          <button data-action="upload-image">复制并插入图片</button>
+        </details>
+
+        <div class="bottom-actions">
+          <button data-action="new">新建</button>
+          <button data-action="save" class="primary">保存 Markdown</button>
+          <span data-status>未保存</span>
+        </div>
+      </section>
+
+      <section class="panel preview-panel">
+        <div class="panel-head">
+          <h2>实时预览</h2>
+          <span>Markdown + LaTeX</span>
+        </div>
+        <article class="preview" data-preview></article>
+      </section>
+
+      <section class="panel layout-panel">
+        <div class="panel-head">
+          <h2>首页展示</h2>
+          <span>精选 / 轮播</span>
+        </div>
+        <p>选择要在首页重点展示或轮播的内容。保存后会写入 <code>src/lib/featured.ts</code>。</p>
+        <div class="stack" data-featured-list></div>
+        <button data-action="save-featured" class="primary">保存展示配置</button>
+      </section>
+    </main>
+
+    <script type="module" src="/studio/app.js"></script>
+  </body>
+</html>

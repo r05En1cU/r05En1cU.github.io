@@ -5,11 +5,16 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
+    "studio": "node studio/server.mjs",
     "build": "astro build",
     "preview": "astro preview"
   },
   "dependencies": {
-    "astro": "latest"
-  },
-  "devDependencies": {}
+    "astro": "latest",
+    "katex": "^0.17.0",
+    "marked": "^18.0.4",
+    "rehype-katex": "^7.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0"
+  }
 }

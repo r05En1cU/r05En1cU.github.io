@@ -1,20 +1,28 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const activity = (await getCollection('activity'))
+  .filter((entry) => !entry.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const formatDate = (date: Date) =>
+  new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
 
 const projects = [
   {
     name: '个人博客工作台',
     status: 'active',
-    summary: '这个仓库承载个人博客、进度记录和仓库链接入口。第一阶段目标是把内容发布流程跑顺。',
-    repo: 'https://github.com/r05En1cU/r05En1cU.github.io',
-    log: '/progress/blog-basic-functions/'
+    summary: '这个仓库承载个人博客、项目动态和仓库链接入口。第一阶段目标是把信息架构和发布流程跑顺。',
+    stack: ['Astro', 'Markdown', 'GitHub Pages'],
+    repo: 'https://github.com/r05En1cU/r05En1cU.github.io'
   },
   {
     name: 'AGVS4RTL',
     status: 'active',
     summary: '当前阶段优先推进业务层与依赖层改动，容器底层先保持稳定。',
-    repo: 'https://github.com/r05En1cU',
-    log: '/progress/'
+    stack: ['应用改造', '依赖治理', '业务层'],
+    repo: 'https://github.com/r05En1cU'
   }
 ];
 ---
@@ -22,12 +30,16 @@ const projects = [
   <section class="hero">
     <div>
       <p class="eyebrow">Projects</p>
-      <h1>项目、仓库和相关记录。</h1>
-      <p class="lede">这里不是作品橱窗，而是一个能回到项目现场的入口：仓库在哪里，最近在做什么，相关记录从哪里继续看。</p>
+      <h1>项目、仓库和正在发生的事。</h1>
+      <p class="lede">这里不再拆出单独的进度页。项目本身放仓库、状态和技术栈，短记录直接作为项目动态聚合在这里。</p>
     </div>
   </section>
 
   <section class="section">
+    <div class="section-heading">
+      <h2>项目索引</h2>
+      <a href="https://github.com/r05En1cU">GitHub</a>
+    </div>
     <div class="grid two">
       {projects.map((project) => (
         <article class="card project-card">
@@ -35,11 +47,36 @@ const projects = [
             <span class={`status ${project.status}`}>{project.status}</span>
             <h2>{project.name}</h2>
             <p>{project.summary}</p>
+            <div class="tag-list">
+              {project.stack.map((item) => <span class="tag">{item}</span>)}
+            </div>
           </div>
           <div class="project-links">
             <a class="button-link" href={project.repo}>仓库</a>
-            <a class="button-link secondary" href={project.log}>相关记录</a>
+            <a class="button-link secondary" href="#activity">项目动态</a>
           </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="activity">
+    <div class="section-heading">
+      <h2 id="activity">项目动态</h2>
+      <span>按时间倒序</span>
+    </div>
+    <div class="article-list">
+      {activity.map((entry) => (
+        <article class="article-link static-row">
+          <time datetime={entry.data.date.toISOString()}>{formatDate(entry.data.date)}</time>
+          <span>
+            <span class={`status ${entry.data.status}`}>{entry.data.status}</span>
+            <h3>{entry.data.title}</h3>
+            {entry.data.project && <p>{entry.data.project}</p>}
+            <span class="tag-list">
+              {entry.data.tags.map((tag) => <span class="tag">{tag}</span>)}
+            </span>
+          </span>
         </article>
       ))}
     </div>

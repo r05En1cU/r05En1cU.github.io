@@ -9,12 +9,14 @@ const blog = defineCollection({
     description: z.string(),
     date: z.coerce.date(),
     tags: z.array(z.string()).default([]),
+    featured: z.boolean().default(false),
+    carousel: z.boolean().default(false),
     draft: z.boolean().default(false)
   })
 });
 
-const progress = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/progress' }),
+const activity = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/activity' }),
   schema: z.object({
     title: z.string(),
     date: z.coerce.date(),
@@ -25,4 +27,4 @@ const progress = defineCollection({
   })
 });
 
-export const collections = { blog, progress };
+export const collections = { blog, activity };

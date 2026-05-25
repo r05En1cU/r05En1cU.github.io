@@ -1,6 +1,6 @@
 # r05En1cU.github.io
 
-RosenIcu 的个人博客、进度记录和项目入口。
+RosenIcu 的个人博客和项目入口。
 
 ## 本地开发
 
@@ -9,30 +9,38 @@ npm install
 npm run dev
 ```
 
+## 本地内容工作台
+
+公开站点不包含 GitHub 登录和在线修改功能。内容修改在本地完成：
+
+```bash
+npm run studio
+```
+
+Studio 默认运行在 `http://127.0.0.1:4177/`，用于编辑 `src/content/blog/` 和 `src/content/activity/`。当前支持：
+
+- Markdown 实时预览。
+- LaTeX 公式预览，支持 `$...$` 和 `$$...$$`。
+- 通过本地图片路径复制到 `public/uploads/`，并插入可调宽高的 `<img>`。
+- 保存首页重点展示和轮播配置到 `src/lib/featured.ts`。
+
 ## 构建
 
 ```bash
 npm run build
 ```
 
+## 页面结构
+
+- `/`：首页，总览身份、近况和最新内容。
+- `/blog/`：博客文章，放完整笔记和阶段性总结。
+- `/projects/`：项目入口，聚合仓库链接和项目动态。
+
 ## 内容目录
 
 - `src/content/blog/`：博客文章，适合完整笔记和阶段性总结。
-- `src/content/progress/`：进度记录，适合高频短日志。
+- `src/content/activity/`：项目动态，作为项目页里的短记录数据源。
 - `src/pages/projects/index.astro`：项目与仓库入口。
-
-## 账号系统
-
-站点左上角账号菜单支持发起 GitHub OAuth 登录。由于 GitHub Pages 是纯静态托管，前端不会保存 `client_secret`，需要额外配置一个 OAuth exchange 服务来用 GitHub 返回的 `code` 换取用户资料和可选的提交 token。
-
-需要的公开环境变量：
-
-```bash
-PUBLIC_GITHUB_CLIENT_ID=your_github_oauth_client_id
-PUBLIC_GITHUB_OAUTH_EXCHANGE_URL=https://your-worker.example.com/auth/github/exchange
-```
-
-白名单账号配置在 `src/lib/auth.ts`。白名单账号登录后会显示 `/admin/` 内容编辑入口。若 exchange 服务返回 `access_token`，编辑页可以通过 GitHub Contents API 新增 Markdown；同名文件已存在时会读取现有 `sha` 后更新内容。否则只生成可手动提交的 Markdown 草稿。
 
 ## 发布
 
