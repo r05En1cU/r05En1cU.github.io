@@ -1,0 +1,109 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const blogPosts = (await getCollection('blog'))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+const progressEntries = (await getCollection('progress'))
+  .filter((entry) => !entry.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 4);
+
+const projects = [
+  {
+    name: '个人博客工作台',
+    status: 'active',
+    summary: '这个站点本身：用于整理博客、进度记录和仓库入口。',
+    href: 'https://github.com/r05En1cU/r05En1cU.github.io'
+  },
+  {
+    name: 'AGVS4RTL',
+    status: 'active',
+    summary: '围绕业务层与依赖层持续推进的项目记录入口。',
+    href: 'https://github.com/r05En1cU'
+  }
+];
+
+const formatDate = (date: Date) =>
+  new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
+---
+<BaseLayout title="RosenIcu | 个人博客与进度记录">
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Personal blog / lab notes / project links</p>
+      <h1>把每天推进过的事情，慢慢整理成能回看的路径。</h1>
+      <p class="lede">
+        这里会放技术笔记、阶段进度、项目链接和一些正在成形的想法。短记录优先，等线索足够清楚时再沉淀成长文。
+      </p>
+    </div>
+    <aside class="callout" aria-label="当前状态">
+      <p class="eyebrow">现在</p>
+      <h2>搭建个人博客的基本功能</h2>
+      <p class="lede">先让首页、文章、进度和项目入口稳定运转，再逐步扩展样式与内容。</p>
+    </aside>
+  </section>
+
+  <section class="section" aria-labelledby="latest-progress">
+    <div class="section-heading">
+      <h2 id="latest-progress">最新进度</h2>
+      <a href="/progress/">查看全部</a>
+    </div>
+    <div class="article-list">
+      {progressEntries.map((entry) => (
+        <a class="article-link" href={`/progress/${entry.id}/`}>
+          <time datetime={entry.data.date.toISOString()}>{formatDate(entry.data.date)}</time>
+          <span>
+            <span class={`status ${entry.data.status}`}>{entry.data.status}</span>
+            <h3>{entry.data.title}</h3>
+            {entry.data.project && <p>{entry.data.project}</p>}
+          </span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="latest-blog">
+    <div class="section-heading">
+      <h2 id="latest-blog">最新文章</h2>
+      <a href="/blog/">进入博客</a>
+    </div>
+    <div class="grid three">
+      {blogPosts.map((post) => (
+        <article class="card compact">
+          <div class="meta">
+            <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
+          </div>
+          <h3><a href={`/blog/${post.id}/`}>{post.data.title}</a></h3>
+          <p>{post.data.description}</p>
+          <div class="tag-list">
+            {post.data.tags.map((tag) => <span class="tag">{tag}</span>)}
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="projects">
+    <div class="section-heading">
+      <h2 id="projects">项目入口</h2>
+      <a href="/projects/">查看项目</a>
+    </div>
+    <div class="grid two">
+      {projects.map((project) => (
+        <article class="card project-card">
+          <div>
+            <span class={`status ${project.status}`}>{project.status}</span>
+            <h3>{project.name}</h3>
+            <p>{project.summary}</p>
+          </div>
+          <div class="project-links">
+            <a class="button-link secondary" href={project.href}>仓库链接</a>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const projects = [
+  {
+    name: '个人博客工作台',
+    status: 'active',
+    summary: '这个仓库承载个人博客、进度记录和仓库链接入口。第一阶段目标是把内容发布流程跑顺。',
+    repo: 'https://github.com/r05En1cU/r05En1cU.github.io',
+    log: '/progress/blog-basic-functions/'
+  },
+  {
+    name: 'AGVS4RTL',
+    status: 'active',
+    summary: '当前阶段优先推进业务层与依赖层改动，容器底层先保持稳定。',
+    repo: 'https://github.com/r05En1cU',
+    log: '/progress/'
+  }
+];
+---
+<BaseLayout title="项目入口 | RosenIcu">
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Projects</p>
+      <h1>项目、仓库和相关记录。</h1>
+      <p class="lede">这里不是作品橱窗，而是一个能回到项目现场的入口：仓库在哪里，最近在做什么，相关记录从哪里继续看。</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="grid two">
+      {projects.map((project) => (
+        <article class="card project-card">
+          <div>
+            <span class={`status ${project.status}`}>{project.status}</span>
+            <h2>{project.name}</h2>
+            <p>{project.summary}</p>
+          </div>
+          <div class="project-links">
+            <a class="button-link" href={project.repo}>仓库</a>
+            <a class="button-link secondary" href={project.log}>相关记录</a>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
